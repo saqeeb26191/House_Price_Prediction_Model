@@ -1,0 +1,39 @@
+# Python cache and environment
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+
+# Jupyter and notebook checkpoints
+.ipynb_checkpoints
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code settings
+.vscode/
+
+# Database files
+*.db
+house_prediction.db
+
+# Static images (generated)
+/static/*.png
+/static/*.jpg
+/static/*.jpeg
+
+# Large data files (optional, if not needed in repo)
+Bengaluru_House_Data.csv
+
+# Logs
+*.log
+
+# Ignore virtual environments
+venv/
+ENV/
+
+# Ignore requirements lock files
+poetry.lock
+Pipfile.lock

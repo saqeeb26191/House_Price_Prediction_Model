@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict House Price - Bengaluru House Price Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .nav-link {
+            color: #2c3e50;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #667eea;
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 2rem auto;
+            max-width: 800px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem 2rem 0;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .btn-predict {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            color: white;
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+
+        .result-container {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .result-container.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .price-display {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .spinner-border {
+            color: #667eea;
+        }
+
+        .error-container {
+            background: #e74c3c;
+            color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+            color: #667eea;
+            margin-right: 0.5rem;
+        }
+
+        .info-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .info-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .info-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-list li {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-list li i {
+            margin-right: 0.5rem;
+            color: #ff6b6b;
+        }
+
+        .stat-item {
+            padding: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+
+        .custom-card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        .custom-card {
+            border-radius: 2rem !important;
+            min-height: 220px;
+            min-width: 320px;
+            max-width: 340px;
+            max-height: 240px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+            margin: 0 auto;
+            background: #fff;
+            transition: box-shadow 0.3s, transform 0.3s;
+            opacity: 0;
+            transform: scale(0.95);
+            animation: fadeInScale 0.7s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+        @keyframes fadeInScale {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .custom-card:hover {
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            transform: scale(1.03);
+        }
+        .model-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+        .price-display {
+            font-size: 2.1rem;
+            font-weight: 700;
+        }
+        @media (max-width: 900px) {
+            .custom-card-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(4, 1fr);
+            }
+            .custom-card {
+                min-width: 90vw;
+                max-width: 95vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('home') }}">
+                <i class="fas fa-home"></i> Bengaluru House Predictor
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('home') }}">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('predict_page') }}">
+                            <i class="fas fa-calculator"></i> Predict
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('about') }}">
+                            <i class="fas fa-info-circle"></i> About
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link">
+                            <i class="fas fa-user"></i> Welcome, {{ username }}!
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 80px;">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header">
+                <h1><i class="fas fa-chart-line me-3"></i>House Price Prediction</h1>
+                <p>Get accurate price predictions for properties in Bengaluru using advanced Machine Learning</p>
+            </div>
+
+            <!-- Prediction Form -->
+            <div class="form-container">
+                <form method="post">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="area_type" class="form-label">
+                                <i class="fas fa-building feature-icon"></i>Area Type
+                            </label>
+                            <select class="form-select" id="area_type" name="area_type" required>
+                                <option value="">Select Area Type</option>
+                                {% for area_type in area_types %}
+                                <option value="{{ area_type }}">{{ area_type }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="location" class="form-label">
+                                <i class="fas fa-map-marker-alt feature-icon"></i>Location
+                            </label>
+                            <select class="form-select" id="location" name="location" required>
+                                <option value="">Select Location</option>
+                                {% for location in locations %}
+                                <option value="{{ location }}">{{ location }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="size" class="form-label">
+                                <i class="fas fa-bed feature-icon"></i>Size (BHK)
+                            </label>
+                            <select class="form-select" id="size" name="size" required>
+                                <option value="">Select Size</option>
+                                <option value="1 BHK">1 BHK</option>
+                                <option value="2 BHK">2 BHK</option>
+                                <option value="3 BHK">3 BHK</option>
+                                <option value="4 BHK">4 BHK</option>
+                                <option value="5 BHK">5 BHK</option>
+                                <option value="6 BHK">6 BHK</option>
+                                <option value="1 Bedroom">1 Bedroom</option>
+                                <option value="2 Bedroom">2 Bedroom</option>
+                                <option value="3 Bedroom">3 Bedroom</option>
+                                <option value="4 Bedroom">4 Bedroom</option>
+                                <option value="1 RK">1 RK</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="total_sqft" class="form-label">
+                                <i class="fas fa-ruler-combined feature-icon"></i>Total Square Feet
+                            </label>
+                            <input type="number" class="form-control" id="total_sqft" name="total_sqft" 
+                                   placeholder="e.g., 1500" min="100" max="10000" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="bath" class="form-label">
+                                <i class="fas fa-bath feature-icon"></i>Bathrooms
+                            </label>
+                            <input type="number" class="form-control" id="bath" name="bath" 
+                                   placeholder="e.g., 2" min="1" max="10" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="balcony" class="form-label">
+                                <i class="fas fa-door-open feature-icon"></i>Balconies
+                            </label>
+                            <input type="number" class="form-control" id="balcony" name="balcony" 
+                                   placeholder="e.g., 1" min="0" max="5" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="availability" class="form-label">
+                                <i class="fas fa-clock feature-icon"></i>Availability
+                            </label>
+                            <select class="form-select" id="availability" name="availability" required>
+                                <option value="">Select Availability</option>
+                                <option value="Ready To Move">Ready To Move</option>
+                                <option value="Under Construction">Under Construction</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-predict">
+                            <i class="fas fa-calculator me-2"></i>Predict Price
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Loading Spinner -->
+                <div class="loading" id="loading">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Analyzing property details...</p>
+                </div>
+
+                <!-- Error Container -->
+                <div class="error-container" id="errorContainer">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span id="errorMessage"></span>
+                </div>
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    {% for category, message in messages %}
+                      <div class="alert alert-{{ category }} mt-3">{{ message }}</div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+
+                <!-- Result Container -->
+                {% if prediction_stats %}
+                <div class="result-container show">
+                    <h2><span style="font-size:2rem; vertical-align:middle;">🔮</span> Prediction Results</h2>
+                    <div class="custom-card-grid">
+                        {% for model, price in prediction_stats['results'].items() %}
+                        <div class="card custom-card shadow-sm {% if model == prediction_stats['best_model'] %}border-success border-3{% else %}border-primary border-2{% endif %}">
+                            <div class="card-body text-center d-flex flex-column justify-content-center align-items-center h-100">
+                                <div class="model-name">
+                                    <span style="font-size:1.6rem; vertical-align:middle;">
+                                        {% if model == 'Linear Regression' %}📈{% elif model == 'Random Forest' %}🌳{% elif model == 'Gradient Boosting' %}🌱{% elif model == 'XGBoost' %}🏆{% else %}🤖{% endif %}
+                                    </span>
+                                    {{ model }}
+                                    {% if model == prediction_stats['best_model'] %}
+                                        <span class="badge bg-success ms-2 align-top">Best</span>
+                                    {% endif %}
+                                </div>
+                                <div class="price-display {% if model == prediction_stats['best_model'] %}text-success{% else %}text-primary{% endif %}">
+                                    ₹ {{ price }} Lakhs
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <p><strong>Best Model:</strong> {{ prediction_stats['best_model'] }}</p>
+                    <p><strong>Mean Prediction:</strong> ₹ {{ prediction_stats['mean_prediction']|round(2) }}</p>
+                    {% if prediction_stats and prediction_stats.explainable_ai_text %}
+                    <div class="explainable-ai-text" style="margin:20px 0; padding:15px; background:#f8f9fa; border-radius:8px; color:#222;">
+                        <h4 style="color:#764ba2;"><i class="fas fa-robot me-2"></i>AI Explanation</h4>
+                        <p>{{ prediction_stats.explainable_ai_text }}</p>
+                    </div>
+                    {% endif %}
+                    <hr/>
+                    <h4>Model Performance & Insights</h4>
+                    <div class="row">
+                        {% if prediction_stats['chart_files']|length > 0 %}
+                        <div class="col-md-6 mb-3">
+                            <img src="{{ url_for('static', filename=prediction_stats['chart_files'][0]) }}" alt="Prediction Chart" class="img-fluid rounded shadow">
+                        </div>
+                        {% endif %}
+                        {% if prediction_stats['chart_files']|length > 1 %}
+                        <div class="col-md-6 mb-3">
+                            <img src="{{ url_for('static', filename=prediction_stats['chart_files'][1]) }}" alt="Pie Chart" class="img-fluid rounded shadow">
+                        </div>
+                        {% endif %}
+                        {% if prediction_stats['chart_files']|length > 2 %}
+                        <div class="col-md-6 mb-3">
+                            <img src="{{ url_for('static', filename=prediction_stats['chart_files'][2]) }}" alt="Consensus Chart" class="img-fluid rounded shadow">
+                        </div>
+                        {% endif %}
+                        {% if prediction_stats['chart_files']|length > 3 %}
+                        <div class="col-md-6 mb-3">
+                            <img src="{{ url_for('static', filename=prediction_stats['chart_files'][3]) }}" alt="Feature Importance Chart" class="img-fluid rounded shadow">
+                        </div>
+                        {% endif %}
+                    </div>
+                    <hr/>
+                    <h4>Explainable AI (SHAP) for All Models</h4>
+                    <div class="row">
+                        {% for model, shap_files in prediction_stats['shap_charts_by_model'].items() %}
+                        <div class="col-12 mb-4">
+                            <div class="card p-3 shadow-sm mb-3">
+                                <h5 class="mb-3">SHAP Explainability: {{ model }}</h5>
+                                {% if shap_files|length > 0 %}
+                                <div class="mb-4">
+                                    <div class="text-center mb-2" style="font-weight:500; font-size:1.1rem;">Force Plot</div>
+                                    <img src="{{ url_for('static', filename=shap_files[0]) }}" alt="SHAP Force Plot for {{ model }}" class="img-fluid rounded shadow mb-3" style="background:#fff;">
+                                    <div class="text-muted small mb-2 text-center">Shows how each feature pushed the prediction up or down for this input.</div>
+                                </div>
+                                {% endif %}
+                                {% if shap_files|length > 1 %}
+                                <div class="mb-4">
+                                    <div class="text-center mb-2" style="font-weight:500; font-size:1.1rem;">Waterfall Plot</div>
+                                    <img src="{{ url_for('static', filename=shap_files[1]) }}" alt="SHAP Waterfall Plot for {{ model }}" class="img-fluid rounded shadow mb-3" style="background:#fff;">
+                                    <div class="text-muted small mb-2 text-center">Breaks down the prediction into additive feature contributions.</div>
+                                </div>
+                                {% endif %}
+                                {% if shap_files|length > 2 %}
+                                <div class="mb-2">
+                                    <div class="text-center mb-2" style="font-weight:500; font-size:1.1rem;">Summary Plot</div>
+                                    <img src="{{ url_for('static', filename=shap_files[2]) }}" alt="SHAP Summary Plot for {{ model }}" class="img-fluid rounded shadow mb-3" style="background:#fff;">
+                                    <div class="text-muted small mb-2 text-center">Shows the overall importance of each feature for this model.</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                {% if error %}
+                <div class="error-container" style="display:block;">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ error }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Info Section -->
+            <div class="info-section">
+                <h3 class="info-title">
+                    <i class="fas fa-lightbulb me-2"></i>How It Works
+                </h3>
+                <ul class="info-list">
+                    <li><i class="fas fa-check-circle"></i> Our AI analyzes 13,000+ properties across Bengaluru</li>
+                    <li><i class="fas fa-check-circle"></i> Considers location, size, amenities, and market trends</li>
+                    <li><i class="fas fa-check-circle"></i> Uses advanced machine learning algorithms</li>
+                    <li><i class="fas fa-check-circle"></i> Provides accurate predictions with 87% accuracy</li>
+                    <li><i class="fas fa-check-circle"></i> Updates predictions based on current market data</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- No JS needed for server-side POST results -->
+</body>
+</html> 

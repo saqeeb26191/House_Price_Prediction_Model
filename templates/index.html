@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏠 Bengaluru House Price Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: none;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80') center/cover;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .hero-content {
+            text-align: center;
+            color: #222;
+            z-index: 1;
+            max-width: 800px;
+            padding: 2rem;
+        }
+
+        .animated-title {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: slideInUp 1.5s ease-out forwards;
+            background: linear-gradient(90deg, #667eea 0%, #a259c4 50%, #ff6bcb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideInUp 1.5s ease-out 0.5s forwards;
+            color: #3a6073;
+            font-weight: 500;
+            text-shadow: 0 2px 8px rgba(180, 200, 220, 0.18);
+        }
+
+        .cta-buttons {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideInUp 1.5s ease-out 1s forwards;
+        }
+
+        .btn-custom {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-secondary-custom {
+            background: linear-gradient(45deg, #43e97b 0%, #38f9d7 100%);
+            color: #fff;
+            border: none;
+            box-shadow: 0 8px 25px rgba(67, 233, 123, 0.15);
+            backdrop-filter: blur(10px);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary-custom:hover {
+            background: linear-gradient(45deg, #ee5a24, #ff6b6b);
+            color: white;
+        }
+
+        .btn-secondary-custom:hover {
+            background: linear-gradient(45deg, #38f9d7 0%, #43e97b 100%);
+            color: #fff;
+        }
+
+        .features {
+            padding: 4rem 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card {
+            background: #232946;
+            color: #fff;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            box-shadow: 0 4px 24px rgba(60, 100, 180, 0.12);
+            border: 1px solid #232946;
+            transition: transform 0.3s ease, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-card h3, .feature-card p {
+            color: #fff;
+        }
+
+        .feature-card .feature-icon {
+            color: #ff6b6b;
+        }
+
+        @keyframes slideInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .floating-houses {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .house {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .house:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .house:nth-child(2) { top: 20%; right: 15%; animation-delay: 2s; }
+        .house:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 4s; }
+        .house:nth-child(4) { bottom: 20%; right: 10%; animation-delay: 1s; }
+        .house:nth-child(5) { top: 50%; left: 5%; animation-delay: 3s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .magic-home-icon {
+            background: linear-gradient(90deg, #667eea 0%, #a259c4 50%, #ff6bcb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+
+        @media (max-width: 768px) {
+            .animated-title {
+                font-size: 2.5rem;
+            }
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            .btn-custom {
+                padding: 12px 30px;
+                font-size: 1rem;
+                margin: 5px;
+            }
+        }
+
+        .main-container {
+            background: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-section">
+        <div class="hero-bg"></div>
+        <div class="floating-houses">
+            <div class="house">🏠</div>
+            <div class="house">🏡</div>
+            <div class="house">🏘️</div>
+            <div class="house">🏚️</div>
+            <div class="house">🏗️</div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="animated-title">
+                <i class="fas fa-home me-3 magic-home-icon"></i> Bengaluru House<br>Price Predictor
+            </div>
+            <p class="subtitle">
+                Discover the perfect home with AI-powered price predictions. 
+                Get accurate estimates for properties across Bengaluru using advanced machine learning.
+            </p>
+            <div class="cta-buttons">
+                <a href="{{ url_for('login') }}" class="btn-custom btn-primary-custom">
+                    <i class="fas fa-sign-in-alt"></i> Get Started
+                </a>
+                <a href="{{ url_for('signup') }}" class="btn-custom btn-secondary-custom">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="features">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3>AI-Powered</h3>
+                        <p>Advanced machine learning algorithms provide accurate price predictions based on comprehensive data analysis.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Market Insights</h3>
+                        <p>Get detailed insights into property trends, location analysis, and market dynamics across Bengaluru.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3>Easy to Use</h3>
+                        <p>Simple and intuitive interface that works seamlessly on desktop, tablet, and mobile devices.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

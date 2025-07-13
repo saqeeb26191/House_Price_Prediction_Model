@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Bengaluru House Price Prediction - ML Project
 
 ## 📊 Project Overview
@@ -238,3 +239,6 @@ Contributions are welcome! Please feel free to submit pull requests or open issu
 ---
 
 **Note**: The actual model performance may vary based on the specific dataset and preprocessing choices. This project serves as a comprehensive example of ML workflow implementation with emphasis on fairness and transparency in model selection. 
+=======
+# House_Price_Prediction_Model
+>>>>>>> 5db9eda39a70c20c89939110b0326763caa1d977
